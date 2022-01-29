@@ -9,6 +9,7 @@ import (
 	"github.com/jonathan-innis/go-todo-app/pkg/controllers"
 	"github.com/jonathan-innis/go-todo-app/pkg/database"
 	"github.com/jonathan-innis/go-todo-app/pkg/middleware"
+	"github.com/rs/cors"
 )
 
 func main() {
@@ -27,6 +28,16 @@ func main() {
 	r.HandleFunc("/api/items/{id}", ic.UpdateItem).Methods("PUT")
 	r.HandleFunc("/api/items/{id}", ic.DeleteItem).Methods("DELETE")
 
+	corsOpts := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+		AllowedMethods: []string{
+			http.MethodGet,
+			http.MethodPost,
+			http.MethodPut,
+			http.MethodDelete,
+		},
+		AllowedHeaders: []string{"*"},
+	})
 	// set our port address
-	log.Fatal(http.ListenAndServe(":8000", r))
+	log.Fatal(http.ListenAndServe(":8000", corsOpts.Handler(r)))
 }
