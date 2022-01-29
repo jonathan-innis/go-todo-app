@@ -17,7 +17,7 @@ const (
 
 type Item struct {
 	ID          primitive.ObjectID `json:"id" bson:"_id"`
-	Title       string             `json:"title" bson:"title" valid:"required"`
+	Title       string             `json:"title" bson:"title" validate:"required"`
 	Description string             `json:"description" bson:"description"`
 	Priority    Priority           `json:"priority" bson:"priority"`
 	CreatedAt   time.Time          `json:"createdAt" bson:"createdAt"`

@@ -21,11 +21,11 @@ func main() {
 	r.Use(middleware.HeaderMiddleware)
 	r.Use(middleware.LoggingMiddleware)
 
-	r.HandleFunc("/api/items", ic.GetBooks).Methods("GET")
-	r.HandleFunc("/api/items/{id}", ic.GetBook).Methods("GET")
-	r.HandleFunc("/api/items", ic.CreateBook).Methods("POST")
-	r.HandleFunc("/api/items/{id}", ic.UpdateBook).Methods("PUT")
-	r.HandleFunc("/api/items/{id}", ic.DeleteBook).Methods("DELETE")
+	r.HandleFunc("/api/items", ic.GetItems).Methods("GET")
+	r.HandleFunc("/api/items/{id}", ic.GetItem).Methods("GET")
+	r.HandleFunc("/api/items", ic.CreateItem).Methods("POST")
+	r.HandleFunc("/api/items/{id}", ic.UpdateItem).Methods("PUT")
+	r.HandleFunc("/api/items/{id}", ic.DeleteItem).Methods("DELETE")
 
 	// set our port address
 	log.Fatal(http.ListenAndServe(":8000", r))

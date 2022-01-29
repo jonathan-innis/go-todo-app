@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
 	"github.com/jonathan-innis/go-todo-app/pkg/database"
 	"github.com/jonathan-innis/go-todo-app/pkg/helper"
@@ -21,12 +22,19 @@ func NewItemController(db database.Interface) *ItemController {
 	return &ItemController{db: db}
 }
 
-func (bc *ItemController) CreateBook(w http.ResponseWriter, r *http.Request) {
+func (bc *ItemController) CreateItem(w http.ResponseWriter, r *http.Request) {
 	var item models.Item
 	if err := json.NewDecoder(r.Body).Decode(&item); err != nil {
 		helper.GetError(w, http.StatusBadRequest, "Invalid request payload with error: "+err.Error())
 		return
 	}
+
+	if err := bc.validateItem(item); err != nil {
+		helper.GetError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// Set the fields that aren't yet set
 	item.ID = primitive.NewObjectID()
 	item.CreatedAt = time.Now()
 	item.ModifiedAt = time.Now()
@@ -45,11 +53,16 @@ func (bc *ItemController) CreateBook(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(item)
 }
 
-func (bc *ItemController) UpdateBook(w http.ResponseWriter, r *http.Request) {
+func (bc *ItemController) UpdateItem(w http.ResponseWriter, r *http.Request) {
 	var item models.Item
 
 	if err := json.NewDecoder(r.Body).Decode(&item); err != nil {
 		helper.GetError(w, http.StatusBadRequest, "Invalid request payload with error: "+err.Error())
+		return
+	}
+
+	if err := bc.validateItem(item); err != nil {
+		helper.GetError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -81,7 +94,7 @@ func (bc *ItemController) UpdateBook(w http.ResponseWriter, r *http.Request) {
 	helper.GetError(w, http.StatusBadRequest, "ID is required")
 }
 
-func (bc *ItemController) GetBook(w http.ResponseWriter, r *http.Request) {
+func (bc *ItemController) GetItem(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	if id, ok := params["id"]; ok {
 		// Validate if the id is a valid ObjectID
@@ -105,7 +118,7 @@ func (bc *ItemController) GetBook(w http.ResponseWriter, r *http.Request) {
 	helper.GetError(w, http.StatusBadRequest, "ID is required")
 }
 
-func (bc *ItemController) GetBooks(w http.ResponseWriter, r *http.Request) {
+func (bc *ItemController) GetItems(w http.ResponseWriter, r *http.Request) {
 	items := []models.Item{}
 	err := bc.db.List(context.TODO(), &items)
 	if err != nil {
@@ -114,7 +127,7 @@ func (bc *ItemController) GetBooks(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(items)
 }
 
-func (bc *ItemController) DeleteBook(w http.ResponseWriter, r *http.Request) {
+func (bc *ItemController) DeleteItem(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	if id, ok := params["id"]; ok {
 		if found, err := bc.db.Delete(context.TODO(), id); err != nil {
@@ -128,4 +141,9 @@ func (bc *ItemController) DeleteBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	helper.GetError(w, http.StatusBadRequest, "ID is required")
+}
+
+func (bc *ItemController) validateItem(item models.Item) error {
+	validate := validator.New()
+	return validate.Struct(item)
 }
