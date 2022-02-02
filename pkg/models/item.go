@@ -20,6 +20,8 @@ type Item struct {
 	Title       string             `json:"title" bson:"title" validate:"required"`
 	Description string             `json:"description" bson:"description"`
 	Priority    Priority           `json:"priority" bson:"priority"`
+	DueAt       time.Time          `json:"dueAt" bson:"dueAt"`
+	Completed   bool               `json:"completed" bson:"completed"`
 	CreatedAt   time.Time          `json:"createdAt" bson:"createdAt"`
 	ModifiedAt  time.Time          `json:"modifiedAt" bson:"modifiedAt"`
 }

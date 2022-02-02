@@ -73,7 +73,18 @@ func (bc *ItemController) UpdateItem(w http.ResponseWriter, r *http.Request) {
 			helper.GetError(w, http.StatusBadRequest, "ID specified must be a valid ObjectID")
 			return
 		}
+
 		oid, _ := primitive.ObjectIDFromHex(id)
+
+		var oldItem models.Item
+		if found, err := bc.db.Get(context.TODO(), id, &oldItem); err != nil {
+			helper.GetInternalError(w, err)
+			return
+		} else if found {
+			item.CreatedAt = oldItem.CreatedAt
+		} else {
+			item.CreatedAt = time.Now()
+		}
 		item.ID = oid
 		item.ModifiedAt = time.Now()
 
