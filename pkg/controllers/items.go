@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -131,10 +132,24 @@ func (bc *ItemController) GetItem(w http.ResponseWriter, r *http.Request) {
 
 func (bc *ItemController) GetItems(w http.ResponseWriter, r *http.Request) {
 	items := []models.Item{}
-	err := bc.db.List(context.TODO(), &items)
-	if err != nil {
-		helper.GetInternalError(w, err)
+	if key := r.FormValue("completed"); key != "" {
+		completed, err := strconv.ParseBool(key)
+		if err != nil {
+			helper.GetError(w, http.StatusBadRequest, "Completed query value must be a boolean")
+			return
+		}
+		err = bc.db.ListWithQuery(context.TODO(), &items, map[string]interface{}{"completed": completed})
+		if err != nil {
+			helper.GetInternalError(w, err)
+		}
+	} else {
+		err := bc.db.List(context.TODO(), &items)
+		if err != nil {
+			helper.GetInternalError(w, err)
+			return
+		}
 	}
+
 	json.NewEncoder(w).Encode(items)
 }
 

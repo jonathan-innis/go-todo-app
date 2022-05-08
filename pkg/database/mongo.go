@@ -67,6 +67,18 @@ func (db *MongoDB) List(ctx context.Context, models interface{}) error {
 	return nil
 }
 
+func (db *MongoDB) ListWithQuery(ctx context.Context, models interface{}, query map[string]interface{}) error {
+	cur, err := db.collection.Find(ctx, query)
+	if err != nil {
+		return err
+	}
+	defer cur.Close(ctx)
+	if err := cur.All(ctx, models); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (db *MongoDB) Delete(ctx context.Context, idStr string) (bool, error) {
 	id, err := primitive.ObjectIDFromHex(idStr)
 	if err != nil {

@@ -22,7 +22,7 @@ func main() {
 	r.Use(middleware.HeaderMiddleware)
 	r.Use(middleware.LoggingMiddleware)
 
-	r.HandleFunc("/api/items", ic.GetItems).Methods("GET")
+	r.HandleFunc("/api/items", ic.GetItems).Methods("GET").Queries("completed", "{completed}")
 	r.HandleFunc("/api/items/{id}", ic.GetItem).Methods("GET")
 	r.HandleFunc("/api/items", ic.CreateItem).Methods("POST")
 	r.HandleFunc("/api/items/{id}", ic.UpdateItem).Methods("PUT")
