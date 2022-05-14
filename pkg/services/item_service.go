@@ -23,7 +23,7 @@ func (is *ItemService) CreateItem(ctx context.Context, item *models.Item) (*mode
 	item.CreatedAt = time.Now()
 	item.ModifiedAt = time.Now()
 
-	createdID, err := is.itemCollection.Create(context.TODO(), &item)
+	createdID, err := is.itemCollection.Create(ctx, &item)
 	if err != nil {
 		return nil, err
 	}
@@ -54,19 +54,19 @@ func (is *ItemService) UpdateItem(ctx context.Context, id string, item *models.I
 }
 
 func (is *ItemService) ListItems(ctx context.Context) ([]models.Item, error) {
-	var items *[]models.Item
-	if err := is.itemCollection.List(ctx, items); err != nil {
+	items := []models.Item{}
+	if err := is.itemCollection.List(ctx, &items); err != nil {
 		return nil, err
 	}
-	return *items, nil
+	return items, nil
 }
 
 func (is *ItemService) ListItemsByCompleted(ctx context.Context, completed bool) ([]models.Item, error) {
-	var items *[]models.Item
-	if err := is.itemCollection.ListWithQuery(ctx, items, map[string]interface{}{"completed": completed}); err != nil {
+	items := []models.Item{}
+	if err := is.itemCollection.ListWithQuery(ctx, &items, map[string]interface{}{"completed": completed}); err != nil {
 		return nil, err
 	}
-	return *items, nil
+	return items, nil
 }
 
 func (is *ItemService) DeleteById(ctx context.Context, id string) (bool, error) {

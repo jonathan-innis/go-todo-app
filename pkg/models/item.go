@@ -25,4 +25,5 @@ type Item struct {
 	Tags        []primitive.ObjectID `json:"tags" bson:"tags"`
 	CreatedAt   time.Time            `json:"createdAt" bson:"createdAt"`
 	ModifiedAt  time.Time            `json:"modifiedAt" bson:"modifiedAt"`
+	Parent      primitive.ObjectID   `json:"parent" bson:"parent"`
 }

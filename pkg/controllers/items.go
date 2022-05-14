@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
 	"github.com/jonathan-innis/go-todo-app/pkg/helper"
 	"github.com/jonathan-innis/go-todo-app/pkg/models"
@@ -23,13 +22,13 @@ func NewItemController(itemService *services.ItemService) *ItemController {
 }
 
 func (ic *ItemController) CreateItem(w http.ResponseWriter, r *http.Request) {
-	var item *models.Item
+	item := &models.Item{}
 	if err := json.NewDecoder(r.Body).Decode(item); err != nil {
 		helper.GetError(w, http.StatusBadRequest, "Invalid request payload with error: "+err.Error())
 		return
 	}
 
-	if err := ic.validateItem(item); err != nil {
+	if err := helper.ValidateObj(item); err != nil {
 		helper.GetError(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -53,7 +52,7 @@ func (ic *ItemController) UpdateItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := ic.validateItem(item); err != nil {
+	if err := helper.ValidateObj(item); err != nil {
 		helper.GetError(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -120,9 +119,4 @@ func (ic *ItemController) DeleteItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	helper.GetError(w, http.StatusBadRequest, "ID is required")
-}
-
-func (bc *ItemController) validateItem(item *models.Item) error {
-	validate := validator.New()
-	return validate.Struct(item)
 }

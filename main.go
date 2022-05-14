@@ -18,26 +18,27 @@ func main() {
 	db := database.ConnectDB(context.Background(), "todo-app")
 
 	itemCollection := database.NewMongoCollection(db.Collection("items"))
-	tagCollection := database.NewMongoCollection(db.Collection("tags"))
+	tagCollection := database.NewMongoCollection(db.Collection("lists"))
 
 	is := services.NewItemService(itemCollection)
 	ic := controllers.NewItemController(is)
 
-	ts := services.NewTagService(tagCollection)
-	tc := controllers.NewTagController(ts)
+	ls := services.NewListService(tagCollection)
+	lc := controllers.NewListController(ls)
 
 	r.Use(middleware.HeaderMiddleware)
 	r.Use(middleware.LoggingMiddleware)
 
 	// Item routes
+	r.HandleFunc("/api/items", ic.GetItems).Methods("GET")
 	r.HandleFunc("/api/items", ic.GetItems).Methods("GET").Queries("completed", "{completed}")
 	r.HandleFunc("/api/items", ic.CreateItem).Methods("POST")
 	r.HandleFunc("/api/items/{id}", ic.UpdateItem).Methods("PUT")
 	r.HandleFunc("/api/items/{id}", ic.DeleteItem).Methods("DELETE")
 
 	// Tag routes
-	r.HandleFunc("/api/tags", tc.GetTags).Methods("GET")
-	r.HandleFunc("/api/tags", tc.CreateTag).Methods("POST")
+	r.HandleFunc("/api/lists", lc.GetLists).Methods("GET")
+	r.HandleFunc("/api/lists", lc.CreateList).Methods("POST")
 
 	corsOpts := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},
