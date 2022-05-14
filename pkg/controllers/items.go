@@ -83,26 +83,30 @@ func (ic *ItemController) UpdateItem(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ic *ItemController) GetItems(w http.ResponseWriter, r *http.Request) {
-	if key := r.FormValue("completed"); key != "" {
-		completed, err := strconv.ParseBool(key)
+	var completed *bool
+	var listId *string
+	completedStr := r.FormValue("completed")
+	listIdStr := r.FormValue("listId")
+
+	// Get the completed string as a boolean value
+	// if it was passed into the parameters
+	if completedStr != "" {
+		temp, err := strconv.ParseBool(completedStr)
 		if err != nil {
 			helper.GetError(w, http.StatusBadRequest, "Completed query value must be a boolean")
 			return
 		}
-		items, err := ic.itemService.ListItemsByCompleted(context.Background(), completed)
-		if err != nil {
-			helper.GetInternalError(w, err)
-			return
-		}
-		json.NewEncoder(w).Encode(items)
-	} else {
-		items, err := ic.itemService.ListItems(context.Background())
-		if err != nil {
-			helper.GetInternalError(w, err)
-			return
-		}
-		json.NewEncoder(w).Encode(items)
+		completed = &temp
 	}
+	if listIdStr != "" {
+		listId = &listIdStr
+	}
+	items, err := ic.itemService.ListItems(context.Background(), completed, listId)
+	if err != nil {
+		helper.GetInternalError(w, err)
+		return
+	}
+	json.NewEncoder(w).Encode(items)
 }
 
 func (ic *ItemController) DeleteItem(w http.ResponseWriter, r *http.Request) {

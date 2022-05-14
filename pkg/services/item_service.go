@@ -53,20 +53,38 @@ func (is *ItemService) UpdateItem(ctx context.Context, id string, item *models.I
 	return newCreate, item, nil
 }
 
-func (is *ItemService) ListItems(ctx context.Context) ([]models.Item, error) {
+func (is *ItemService) ListItems(ctx context.Context, completed *bool, listId *string) ([]models.Item, error) {
 	items := []models.Item{}
-	if err := is.itemCollection.List(ctx, &items); err != nil {
+	queryParams, err := is.getQueryParams(completed, listId)
+	if err != nil {
 		return nil, err
+	}
+	if len(queryParams) > 0 {
+		if err := is.itemCollection.ListWithQuery(ctx, &items, queryParams); err != nil {
+			return nil, err
+		}
+	} else {
+		if err := is.itemCollection.List(ctx, &items); err != nil {
+			return nil, err
+		}
 	}
 	return items, nil
 }
 
-func (is *ItemService) ListItemsByCompleted(ctx context.Context, completed bool) ([]models.Item, error) {
-	items := []models.Item{}
-	if err := is.itemCollection.ListWithQuery(ctx, &items, map[string]interface{}{"completed": completed}); err != nil {
-		return nil, err
+func (is *ItemService) getQueryParams(completed *bool, listId *string) (map[string]interface{}, error) {
+	queries := make(map[string]interface{})
+
+	if completed != nil {
+		queries["completed"] = *completed
 	}
-	return items, nil
+	if listId != nil {
+		listOId, err := primitive.ObjectIDFromHex(*listId)
+		if err != nil {
+			return nil, err
+		}
+		queries["listId"] = listOId
+	}
+	return queries, nil
 }
 
 func (is *ItemService) DeleteById(ctx context.Context, id string) (bool, error) {
