@@ -25,20 +25,28 @@ func main() {
 
 	ls := services.NewListService(tagCollection)
 	lc := controllers.NewListController(ls)
+	ac := controllers.NewAuthController()
 
 	r.Use(middleware.HeaderMiddleware)
 	r.Use(middleware.LoggingMiddleware)
 
-	// Item routes
-	r.HandleFunc("/api/items", ic.GetItems).Methods("GET")
-	r.HandleFunc("/api/items", ic.GetItems).Methods("GET").Queries("completed", "{completed}")
-	r.HandleFunc("/api/items", ic.CreateItem).Methods("POST")
-	r.HandleFunc("/api/items/{id}", ic.UpdateItem).Methods("PUT")
-	r.HandleFunc("/api/items/{id}", ic.DeleteItem).Methods("DELETE")
+	apiRouter := r.PathPrefix("/api").Subrouter()
 
-	// Tag routes
-	r.HandleFunc("/api/lists", lc.GetLists).Methods("GET")
-	r.HandleFunc("/api/lists", lc.CreateList).Methods("POST")
+	apiRouter.HandleFunc("/login", ac.Login).Methods("POST")
+
+	userContextRouter := apiRouter.PathPrefix("/users/{userId}").Subrouter()
+	userContextRouter.Use(middleware.UserAuthenticationMiddleware)
+
+	// Item routes
+	userContextRouter.HandleFunc("/items", ic.GetItems).Methods("GET")
+	userContextRouter.HandleFunc("/items", ic.GetItems).Methods("GET").Queries("completed", "{completed}")
+	userContextRouter.HandleFunc("/items", ic.CreateItem).Methods("POST")
+	userContextRouter.HandleFunc("/items/{id}", ic.UpdateItem).Methods("PUT")
+	userContextRouter.HandleFunc("/items/{id}", ic.DeleteItem).Methods("DELETE")
+
+	// List routes
+	userContextRouter.HandleFunc("/lists", lc.GetLists).Methods("GET")
+	userContextRouter.HandleFunc("/lists", lc.CreateList).Methods("POST")
 
 	corsOpts := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},
