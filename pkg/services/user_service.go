@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/jonathan-innis/go-todo-app/pkg/database"
-	"github.com/jonathan-innis/go-todo-app/pkg/errors"
 	"github.com/jonathan-innis/go-todo-app/pkg/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserService struct {
@@ -19,18 +19,24 @@ func NewUserService(userCollection database.Interface) *UserService {
 }
 
 func (us *UserService) CreateUser(ctx context.Context, user *models.User) (*models.User, error) {
-	user, found, err := us.GetUserByUsername(ctx, user.Username)
+	_, found, err := us.GetUserByUsername(ctx, user.Username)
 	if err != nil {
 		return nil, err
 	}
 	if found {
-		return nil, errors.UserExistsErr{}
+		return nil, models.UserExistsErr{}
 	}
 
 	// Set the fields that aren't yet set
 	user.ID = primitive.NewObjectID()
 	user.CreatedAt = time.Now()
 	user.ModifiedAt = time.Now()
+
+	saltedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+	user.Password = string(saltedPassword)
 
 	createdID, err := us.userCollection.Create(ctx, &user)
 	if err != nil {
