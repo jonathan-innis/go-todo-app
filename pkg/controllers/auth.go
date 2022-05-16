@@ -58,6 +58,7 @@ func (ac *AuthController) Register(w http.ResponseWriter, r *http.Request) {
 	user, err := ac.userService.CreateUser(context.Background(), user)
 	if errors.Is(err, models.UserExistsErr{}) {
 		helper.GetError(w, http.StatusBadRequest, "Username already exists")
+		return
 	}
 	if err != nil {
 		helper.GetInternalError(w, err)
