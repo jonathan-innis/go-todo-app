@@ -17,15 +17,20 @@ func main() {
 	r := mux.NewRouter()
 	db := database.ConnectDB(context.Background(), "todo-app")
 
+	// Register the collections
 	itemCollection := database.NewMongoCollection(db.Collection("items"))
-	tagCollection := database.NewMongoCollection(db.Collection("lists"))
+	listCollection := database.NewMongoCollection(db.Collection("lists"))
+	userCollection := database.NewMongoCollection(db.Collection("users"))
 
+	// Register the services
 	is := services.NewItemService(itemCollection)
-	ic := controllers.NewItemController(is)
+	ls := services.NewListService(listCollection)
+	us := services.NewUserService(userCollection)
 
-	ls := services.NewListService(tagCollection)
+	// Register the controllers
+	ic := controllers.NewItemController(is)
 	lc := controllers.NewListController(ls)
-	ac := controllers.NewAuthController()
+	ac := controllers.NewAuthController(us)
 
 	r.Use(middleware.HeaderMiddleware)
 	r.Use(middleware.LoggingMiddleware)

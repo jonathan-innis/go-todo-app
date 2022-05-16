@@ -42,7 +42,7 @@ func (db *MongoCollection) Update(ctx context.Context, item interface{}, idStr s
 	return false, nil
 }
 
-func (db *MongoCollection) Get(ctx context.Context, idStr string, model interface{}) (bool, error) {
+func (db *MongoCollection) GetById(ctx context.Context, idStr string, model interface{}) (bool, error) {
 	id, err := primitive.ObjectIDFromHex(idStr)
 	if err != nil {
 		return false, err
@@ -51,6 +51,15 @@ func (db *MongoCollection) Get(ctx context.Context, idStr string, model interfac
 		return false, nil
 	} else if err != nil {
 		return true, err
+	}
+	return true, nil
+}
+
+func (db *MongoCollection) GetOneWithQuery(ctx context.Context, query map[string]interface{}, model interface{}) (bool, error) {
+	if err := db.collection.FindOne(ctx, query).Decode(model); errors.Is(mongo.ErrNoDocuments, err) {
+		return false, nil
+	} else if err != nil {
+		return false, err
 	}
 	return true, nil
 }

@@ -23,7 +23,7 @@ type Item struct {
 	DueAt       time.Time            `json:"dueAt" bson:"dueAt"`
 	Completed   bool                 `json:"completed" bson:"completed"`
 	Tags        []primitive.ObjectID `json:"tags" bson:"tags"`
-	CreatedAt   time.Time            `json:"createdAt" bson:"createdAt"`
-	ModifiedAt  time.Time            `json:"modifiedAt" bson:"modifiedAt"`
 	ListID      primitive.ObjectID   `json:"listId" bson:"listId"`
+
+	Metadata
 }

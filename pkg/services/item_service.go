@@ -36,7 +36,7 @@ func (is *ItemService) UpdateItem(ctx context.Context, id string, item *models.I
 	oid, _ := primitive.ObjectIDFromHex(id)
 
 	var oldItem models.Item
-	if found, err := is.itemCollection.Get(ctx, id, &oldItem); err != nil {
+	if found, err := is.itemCollection.GetById(ctx, id, &oldItem); err != nil {
 		return false, nil, err
 	} else if found {
 		item.CreatedAt = oldItem.CreatedAt

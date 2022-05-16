@@ -11,6 +11,7 @@ type Interface interface {
 	Update(ctx context.Context, item interface{}, idStr string) (bool, error)
 	List(ctx context.Context, items interface{}) error
 	ListWithQuery(ctx context.Context, items interface{}, query map[string]interface{}) error
-	Get(ctx context.Context, id string, item interface{}) (bool, error)
+	GetById(ctx context.Context, id string, item interface{}) (bool, error)
+	GetOneWithQuery(ctx context.Context, query map[string]interface{}, item interface{}) (bool, error)
 	Delete(ctx context.Context, id string) (bool, error)
 }
