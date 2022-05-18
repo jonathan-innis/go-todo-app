@@ -58,3 +58,17 @@ func (us *UserService) GetUserByUsername(ctx context.Context, username string) (
 	}
 	return user, true, nil
 }
+
+func (us *UserService) ValidateLoginRequest(ctx context.Context, username string, password string) (string, error) {
+	user, found, err := us.GetUserByUsername(ctx, username)
+	if err != nil {
+		return "", err
+	}
+	if !found {
+		return "", models.UserNotExistsErr{}
+	}
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+		return "", models.InvalidPasswordErr{}
+	}
+	return user.ID.Hex(), nil
+}

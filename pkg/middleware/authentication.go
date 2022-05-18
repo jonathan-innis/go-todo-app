@@ -1,10 +1,10 @@
 package middleware
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/jonathan-innis/go-todo-app/pkg/auth"
 	"github.com/jonathan-innis/go-todo-app/pkg/helper"
 )
 
@@ -27,7 +27,15 @@ func UserAuthenticationMiddleware(next http.Handler) http.Handler {
 			helper.GetError(w, http.StatusUnauthorized, "Authorization header not included in the request")
 			return
 		}
-		log.Print(userId, authHeader)
+		valid, err := auth.ValidateToken(userId, authHeader)
+		if err != nil {
+			helper.GetInternalError(w, err)
+			return
+		}
+		if !valid {
+			helper.GetError(w, http.StatusUnauthorized, "Token is not authorized to view user data")
+			return
+		}
 		next.ServeHTTP(w, r)
 	})
 }

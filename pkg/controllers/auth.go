@@ -29,9 +29,16 @@ func (ac *AuthController) Login(w http.ResponseWriter, r *http.Request) {
 		helper.GetError(w, http.StatusBadRequest, "Invalid request payload with error: "+err.Error())
 	}
 
-	// TODO: grab the user from the DB with the user service and validate that the password matches
+	userId, err := ac.userService.ValidateLoginRequest(context.Background(), loginRequest.Username, loginRequest.Password)
+	if err != nil {
+		if errors.Is(err, models.UserNotExistsErr{}) || errors.Is(err, models.InvalidPasswordErr{}) {
+			helper.GetError(w, http.StatusUnauthorized, "username and password are invalid")
+			return
+		}
+		helper.GetInternalError(w, err)
+		return
+	}
 
-	userId := "xxxxx"
 	tokenStr, err := auth.GetTokenForUserId(userId)
 	if err != nil {
 		helper.GetInternalError(w, err)
@@ -56,7 +63,7 @@ func (ac *AuthController) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userModel, err := ac.userService.CreateUser(context.Background(), views.NewUserModel(user))
+	_, err := ac.userService.CreateUser(context.Background(), views.NewUserModel(user))
 	if errors.Is(err, models.UserExistsErr{}) {
 		helper.GetError(w, http.StatusBadRequest, "Username already exists")
 		return
@@ -66,6 +73,5 @@ func (ac *AuthController) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(views.NewUserView(userModel))
+	w.WriteHeader(http.StatusOK)
 }
