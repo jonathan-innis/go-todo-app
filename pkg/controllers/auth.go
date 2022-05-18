@@ -53,17 +53,17 @@ func (ac *AuthController) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ac *AuthController) Register(w http.ResponseWriter, r *http.Request) {
-	user := &views.User{}
-	if err := json.NewDecoder(r.Body).Decode(user); err != nil {
+	registerRequest := &views.RegisterRequest{}
+	if err := json.NewDecoder(r.Body).Decode(registerRequest); err != nil {
 		helper.GetError(w, http.StatusBadRequest, "Invalid request payload with error: "+err.Error())
 	}
 
-	if err := helper.ValidateObj(user); err != nil {
+	if err := helper.ValidateObj(registerRequest); err != nil {
 		helper.GetError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	_, err := ac.userService.CreateUser(context.Background(), views.NewUserModel(user))
+	_, err := ac.userService.CreateUser(context.Background(), views.NewUserFromRegisterRequest(registerRequest))
 	if errors.Is(err, models.UserExistsErr{}) {
 		helper.GetError(w, http.StatusBadRequest, "Username already exists")
 		return

@@ -31,6 +31,7 @@ func main() {
 	ic := controllers.NewItemController(is)
 	lc := controllers.NewListController(ls)
 	ac := controllers.NewAuthController(us)
+	uc := controllers.NewUserController(us)
 
 	r.Use(middleware.HeaderMiddleware)
 	r.Use(middleware.LoggingMiddleware)
@@ -44,6 +45,7 @@ func main() {
 	userContextRouter.Use(middleware.UserAuthenticationMiddleware)
 
 	// Item routes
+	userContextRouter.HandleFunc("", uc.GetUser).Methods("GET")
 	userContextRouter.HandleFunc("/items", ic.GetItems).Methods("GET")
 	userContextRouter.HandleFunc("/items", ic.GetItems).Methods("GET").Queries("completed", "{completed}")
 	userContextRouter.HandleFunc("/items", ic.CreateItem).Methods("POST")

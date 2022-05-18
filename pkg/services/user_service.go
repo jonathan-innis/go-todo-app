@@ -47,6 +47,18 @@ func (us *UserService) CreateUser(ctx context.Context, user *models.User) (*mode
 	return user, nil
 }
 
+func (us *UserService) GetUserById(ctx context.Context, userId string) (*models.User, bool, error) {
+	user := &models.User{}
+	found, err := us.userCollection.GetById(ctx, userId, user)
+	if err != nil {
+		return nil, false, err
+	}
+	if !found {
+		return nil, false, nil
+	}
+	return user, true, nil
+}
+
 func (us *UserService) GetUserByUsername(ctx context.Context, username string) (*models.User, bool, error) {
 	user := &models.User{}
 	found, err := us.userCollection.GetOneWithQuery(ctx, map[string]interface{}{"username": username}, user)
