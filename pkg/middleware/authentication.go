@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -22,18 +23,14 @@ func UserAuthenticationMiddleware(next http.Handler) http.Handler {
 			helper.GetError(w, http.StatusNotFound, "User Id not found in the request")
 			return
 		}
-		authHeader, ok := vars[AuthorizationKey]
+		authHeader := r.Header.Get(AuthorizationKey)
 		if !ok {
 			helper.GetError(w, http.StatusUnauthorized, "Authorization header not included in the request")
 			return
 		}
-		valid, err := auth.ValidateToken(userId, authHeader)
+		err := auth.ValidateToken(userId, auth.ParseToken(authHeader))
 		if err != nil {
-			helper.GetInternalError(w, err)
-			return
-		}
-		if !valid {
-			helper.GetError(w, http.StatusUnauthorized, "Token is not authorized to view user data")
+			helper.GetError(w, http.StatusUnauthorized, fmt.Sprintf("Token is not authorized to view user %v", userId))
 			return
 		}
 		next.ServeHTTP(w, r)
