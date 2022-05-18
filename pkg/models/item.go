@@ -15,6 +15,32 @@ const (
 	HighPriority
 )
 
+func (p Priority) String() string {
+	switch p {
+	case LowPriority:
+		return "Low"
+	case MediumPriority:
+		return "Medium"
+	case HighPriority:
+		return "High"
+	default:
+		return "None"
+	}
+}
+
+func ParsePriority(p string) Priority {
+	switch p {
+	case "Low":
+		return LowPriority
+	case "Medium":
+		return MediumPriority
+	case "High":
+		return HighPriority
+	default:
+		return NoPriority
+	}
+}
+
 type Item struct {
 	ID          primitive.ObjectID   `json:"id" bson:"_id"`
 	Title       string               `json:"title" bson:"title" validate:"required"`

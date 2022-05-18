@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"github.com/jonathan-innis/go-todo-app/pkg/helper"
-	"github.com/jonathan-innis/go-todo-app/pkg/models"
 	"github.com/jonathan-innis/go-todo-app/pkg/services"
+	"github.com/jonathan-innis/go-todo-app/pkg/views"
 )
 
 type ListController struct {
@@ -19,7 +19,7 @@ func NewListController(listService *services.ListService) *ListController {
 }
 
 func (lc *ListController) CreateList(w http.ResponseWriter, r *http.Request) {
-	list := &models.List{}
+	list := &views.List{}
 	if err := json.NewDecoder(r.Body).Decode(list); err != nil {
 		helper.GetError(w, http.StatusBadRequest, "Invalid request payload with error: "+err.Error())
 		return
@@ -30,15 +30,15 @@ func (lc *ListController) CreateList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	item, err := lc.listService.CreateItem(context.Background(), list)
+	listModel, err := lc.listService.CreateItem(context.Background(), views.NewListModel(list))
 	if err != nil {
 		helper.GetInternalError(w, err)
 		return
 	}
 
-	w.Header().Add("Location", r.Host+"/api/items/"+item.ID.Hex())
+	w.Header().Add("Location", r.Host+"/api/items/"+listModel.ID.Hex())
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(item)
+	json.NewEncoder(w).Encode(views.NewListView(listModel))
 }
 
 func (lc *ListController) GetLists(w http.ResponseWriter, r *http.Request) {
@@ -47,5 +47,5 @@ func (lc *ListController) GetLists(w http.ResponseWriter, r *http.Request) {
 		helper.GetInternalError(w, err)
 		return
 	}
-	json.NewEncoder(w).Encode(lists)
+	json.NewEncoder(w).Encode(views.NewListListView(lists))
 }

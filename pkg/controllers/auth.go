@@ -10,6 +10,7 @@ import (
 	"github.com/jonathan-innis/go-todo-app/pkg/helper"
 	"github.com/jonathan-innis/go-todo-app/pkg/models"
 	"github.com/jonathan-innis/go-todo-app/pkg/services"
+	"github.com/jonathan-innis/go-todo-app/pkg/views"
 )
 
 type AuthController struct {
@@ -23,7 +24,7 @@ func NewAuthController(userService *services.UserService) *AuthController {
 }
 
 func (ac *AuthController) Login(w http.ResponseWriter, r *http.Request) {
-	loginRequest := &models.LoginRequest{}
+	loginRequest := &views.LoginRequest{}
 	if err := json.NewDecoder(r.Body).Decode(loginRequest); err != nil {
 		helper.GetError(w, http.StatusBadRequest, "Invalid request payload with error: "+err.Error())
 	}
@@ -37,7 +38,7 @@ func (ac *AuthController) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	loginResponse := &models.LoginResponse{
+	loginResponse := &views.LoginResponse{
 		UserId: userId,
 		Token:  tokenStr,
 	}
@@ -45,7 +46,7 @@ func (ac *AuthController) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ac *AuthController) Register(w http.ResponseWriter, r *http.Request) {
-	user := &models.User{}
+	user := &views.User{}
 	if err := json.NewDecoder(r.Body).Decode(user); err != nil {
 		helper.GetError(w, http.StatusBadRequest, "Invalid request payload with error: "+err.Error())
 	}
@@ -55,7 +56,7 @@ func (ac *AuthController) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := ac.userService.CreateUser(context.Background(), user)
+	userModel, err := ac.userService.CreateUser(context.Background(), views.NewUserModel(user))
 	if errors.Is(err, models.UserExistsErr{}) {
 		helper.GetError(w, http.StatusBadRequest, "Username already exists")
 		return
@@ -66,5 +67,5 @@ func (ac *AuthController) Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(user)
+	json.NewEncoder(w).Encode(views.NewUserView(userModel))
 }

@@ -8,8 +8,8 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/jonathan-innis/go-todo-app/pkg/helper"
-	"github.com/jonathan-innis/go-todo-app/pkg/models"
 	"github.com/jonathan-innis/go-todo-app/pkg/services"
+	"github.com/jonathan-innis/go-todo-app/pkg/views"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -22,7 +22,7 @@ func NewItemController(itemService *services.ItemService) *ItemController {
 }
 
 func (ic *ItemController) CreateItem(w http.ResponseWriter, r *http.Request) {
-	item := &models.Item{}
+	item := &views.Item{}
 	if err := json.NewDecoder(r.Body).Decode(item); err != nil {
 		helper.GetError(w, http.StatusBadRequest, "Invalid request payload with error: "+err.Error())
 		return
@@ -33,19 +33,19 @@ func (ic *ItemController) CreateItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	item, err := ic.itemService.CreateItem(context.Background(), item)
+	itemModel, err := ic.itemService.CreateItem(context.Background(), views.NewItemModel(item))
 	if err != nil {
 		helper.GetInternalError(w, err)
 		return
 	}
 
-	w.Header().Add("Location", r.Host+"/api/items/"+item.ID.Hex())
+	w.Header().Add("Location", r.Host+"/api/items/"+itemModel.ID.Hex())
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(item)
+	json.NewEncoder(w).Encode(views.NewItemView(itemModel))
 }
 
 func (ic *ItemController) UpdateItem(w http.ResponseWriter, r *http.Request) {
-	var item *models.Item
+	var item *views.Item
 
 	if err := json.NewDecoder(r.Body).Decode(item); err != nil {
 		helper.GetError(w, http.StatusBadRequest, "Invalid request payload with error: "+err.Error())
@@ -65,7 +65,7 @@ func (ic *ItemController) UpdateItem(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		newCreate, item, err := ic.itemService.UpdateItem(context.Background(), id, item)
+		newCreate, itemModel, err := ic.itemService.UpdateItem(context.Background(), id, views.NewItemModel(item))
 		if err != nil {
 			helper.GetInternalError(w, err)
 			return
@@ -76,7 +76,7 @@ func (ic *ItemController) UpdateItem(w http.ResponseWriter, r *http.Request) {
 		} else {
 			w.WriteHeader(http.StatusOK)
 		}
-		json.NewEncoder(w).Encode(item)
+		json.NewEncoder(w).Encode(views.NewItemView(itemModel))
 		return
 	}
 	helper.GetError(w, http.StatusBadRequest, "ID is required")
@@ -101,12 +101,12 @@ func (ic *ItemController) GetItems(w http.ResponseWriter, r *http.Request) {
 	if listIdStr != "" {
 		listId = &listIdStr
 	}
-	items, err := ic.itemService.ListItems(context.Background(), completed, listId)
+	itemModels, err := ic.itemService.ListItems(context.Background(), completed, listId)
 	if err != nil {
 		helper.GetInternalError(w, err)
 		return
 	}
-	json.NewEncoder(w).Encode(items)
+	json.NewEncoder(w).Encode(views.NewItemListView(itemModels))
 }
 
 func (ic *ItemController) DeleteItem(w http.ResponseWriter, r *http.Request) {
