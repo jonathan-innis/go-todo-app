@@ -47,7 +47,7 @@ func main() {
 	// Item routes
 	userContextRouter.HandleFunc("", uc.GetUser).Methods("GET")
 	userContextRouter.HandleFunc("/items", ic.GetItems).Methods("GET")
-	userContextRouter.HandleFunc("/items", ic.GetItems).Methods("GET").Queries("completed", "{completed}")
+	userContextRouter.HandleFunc("/items", ic.GetItems).Methods("GET").Queries("completed", "{completed}", "listId", "{listId}")
 	userContextRouter.HandleFunc("/items", ic.CreateItem).Methods("POST")
 	userContextRouter.HandleFunc("/items/{id}", ic.UpdateItem).Methods("PUT")
 	userContextRouter.HandleFunc("/items/{id}", ic.DeleteItem).Methods("DELETE")
