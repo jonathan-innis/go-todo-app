@@ -38,10 +38,12 @@ func main() {
 
 	apiRouter := r.PathPrefix("/api").Subrouter()
 
-	apiRouter.HandleFunc("/login", ac.Login).Methods("POST")
-	apiRouter.HandleFunc("/register", ac.Register).Methods("POST")
+	apiV1Router := apiRouter.PathPrefix("/v1").Subrouter()
 
-	userContextRouter := apiRouter.PathPrefix("/users/{userId}").Subrouter()
+	apiV1Router.HandleFunc("/login", ac.Login).Methods("POST")
+	apiV1Router.HandleFunc("/register", ac.Register).Methods("POST")
+
+	userContextRouter := apiV1Router.PathPrefix("/users/{userId}").Subrouter()
 	userContextRouter.Use(middleware.UserAuthenticationMiddleware)
 
 	// Item routes

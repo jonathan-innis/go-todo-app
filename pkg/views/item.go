@@ -15,6 +15,7 @@ type Item struct {
 	DueAt       time.Time            `json:"dueAt"`
 	Completed   bool                 `json:"completed"`
 	Tags        []primitive.ObjectID `json:"tags"`
+	ListID      primitive.ObjectID   `json:"listId"`
 
 	Metadata
 }
@@ -28,6 +29,7 @@ func NewItemModel(i *Item) *models.Item {
 		DueAt:       i.DueAt,
 		Completed:   i.Completed,
 		Tags:        i.Tags,
+		ListID:      i.ListID,
 		Metadata:    *NewMetadataModel(&i.Metadata),
 	}
 }
@@ -41,6 +43,7 @@ func NewItemView(i *models.Item) *Item {
 		DueAt:       i.DueAt,
 		Completed:   i.Completed,
 		Tags:        i.Tags,
+		ListID:      i.ListID,
 		Metadata:    *NewMetadataView(&i.Metadata),
 	}
 }
