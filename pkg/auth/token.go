@@ -8,6 +8,7 @@ import (
 )
 
 // Create the JWT key used to create the signature
+// TODO: Create a key here that is pulled in from some file
 var jwtKey = []byte("my_secret_key")
 
 func GetTokenForUserId(userId string) (string, error) {
@@ -24,7 +25,7 @@ func ValidateToken(userId string, token string) error {
 	claims := &Claims{}
 	parsedToken, err := jwt.ParseWithClaims(token, claims, func(t *jwt.Token) (interface{}, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", t.Header["alg"])
+			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
 		}
 		return jwtKey, nil
 	})

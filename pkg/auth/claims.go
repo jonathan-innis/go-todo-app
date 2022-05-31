@@ -19,6 +19,7 @@ func NewClaims(userId string) *Claims {
 	return &Claims{
 		UserId: userId,
 		RegisteredClaims: jwt.RegisteredClaims{
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(defaultExpirationTime)),
 		},
 	}
