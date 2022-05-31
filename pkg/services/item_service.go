@@ -53,6 +53,18 @@ func (is *ItemService) UpdateItem(ctx context.Context, id string, item *models.I
 	return newCreate, item, nil
 }
 
+func (is *ItemService) GetItemById(ctx context.Context, id string) (*models.Item, bool, error) {
+	item := &models.Item{}
+	found, err := is.itemCollection.GetById(ctx, id, item)
+	if err != nil {
+		return nil, false, err
+	}
+	if !found {
+		return nil, false, nil
+	}
+	return item, true, nil
+}
+
 func (is *ItemService) ListItems(ctx context.Context, completed *bool, listId *string) ([]models.Item, error) {
 	items := []models.Item{}
 	queryParams, err := is.getQueryParams(completed, listId)

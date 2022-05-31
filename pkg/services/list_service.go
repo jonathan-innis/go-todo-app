@@ -53,6 +53,18 @@ func (ls *ListService) UpdateList(ctx context.Context, id string, list *models.L
 	return newCreate, list, nil
 }
 
+func (ls *ListService) GetListById(ctx context.Context, id string) (*models.List, bool, error) {
+	list := &models.List{}
+	found, err := ls.listCollection.GetById(ctx, id, list)
+	if err != nil {
+		return nil, false, err
+	}
+	if !found {
+		return nil, false, nil
+	}
+	return list, true, nil
+}
+
 func (ls *ListService) ListLists(ctx context.Context) ([]models.List, error) {
 	lists := []models.List{}
 	if err := ls.listCollection.List(ctx, &lists); err != nil {

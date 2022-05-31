@@ -46,14 +46,16 @@ func main() {
 
 	// Item routes
 	userContextRouter.HandleFunc("", uc.GetUser).Methods("GET")
-	userContextRouter.HandleFunc("/items", ic.GetItems).Methods("GET")
-	userContextRouter.HandleFunc("/items", ic.GetItems).Methods("GET").Queries("completed", "{completed}", "listId", "{listId}")
+	userContextRouter.HandleFunc("/items/{id}", ic.GetItem).Methods("GET")
+	userContextRouter.HandleFunc("/items", ic.ListItems).Methods("GET")
+	userContextRouter.HandleFunc("/items", ic.ListItems).Methods("GET").Queries("completed", "{completed}", "listId", "{listId}")
 	userContextRouter.HandleFunc("/items", ic.CreateItem).Methods("POST")
 	userContextRouter.HandleFunc("/items/{id}", ic.UpdateItem).Methods("PUT")
 	userContextRouter.HandleFunc("/items/{id}", ic.DeleteItem).Methods("DELETE")
 
 	// List routes
-	userContextRouter.HandleFunc("/lists", lc.GetLists).Methods("GET")
+	userContextRouter.HandleFunc("/lists/{id}", lc.GetList).Methods("GET")
+	userContextRouter.HandleFunc("/lists", lc.ListLists).Methods("GET")
 	userContextRouter.HandleFunc("/lists", lc.CreateList).Methods("POST")
 	userContextRouter.HandleFunc("/lists/{id}", lc.UpdateList).Methods("PUT")
 	userContextRouter.HandleFunc("/lists/{id}", lc.DeleteList).Methods("DELETE")

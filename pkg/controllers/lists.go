@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -81,7 +82,27 @@ func (lc *ListController) UpdateList(w http.ResponseWriter, r *http.Request) {
 	helper.GetError(w, http.StatusBadRequest, "ID is required")
 }
 
-func (lc *ListController) GetLists(w http.ResponseWriter, r *http.Request) {
+func (lc *ListController) GetList(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, ok := vars["id"]
+	if !ok {
+		helper.GetError(w, http.StatusBadRequest, "id not specified in the request")
+		return
+	}
+	listModel, found, err := lc.listService.GetListById(context.Background(), id)
+	if err != nil {
+		helper.GetInternalError(w, err)
+		return
+	}
+	if !found {
+		helper.GetError(w, http.StatusNotFound, fmt.Sprintf("Item %v not found", id))
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(views.NewListView(listModel))
+}
+
+func (lc *ListController) ListLists(w http.ResponseWriter, r *http.Request) {
 	lists, err := lc.listService.ListLists(context.Background())
 	if err != nil {
 		helper.GetInternalError(w, err)
