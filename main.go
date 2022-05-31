@@ -55,6 +55,8 @@ func main() {
 	// List routes
 	userContextRouter.HandleFunc("/lists", lc.GetLists).Methods("GET")
 	userContextRouter.HandleFunc("/lists", lc.CreateList).Methods("POST")
+	userContextRouter.HandleFunc("/lists/{id}", lc.UpdateList).Methods("PUT")
+	userContextRouter.HandleFunc("/lists/{id}", lc.DeleteList).Methods("DELETE")
 
 	corsOpts := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},

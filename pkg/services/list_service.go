@@ -32,10 +32,35 @@ func (ls *ListService) CreateItem(ctx context.Context, list *models.List) (*mode
 	return list, nil
 }
 
+func (ls *ListService) UpdateList(ctx context.Context, id string, list *models.List) (bool, *models.List, error) {
+	oid, _ := primitive.ObjectIDFromHex(id)
+
+	var oldList models.List
+	if found, err := ls.listCollection.GetById(ctx, id, &oldList); err != nil {
+		return false, nil, err
+	} else if found {
+		list.CreatedAt = oldList.CreatedAt
+	} else {
+		list.CreatedAt = time.Now()
+	}
+	list.ID = oid
+	list.ModifiedAt = time.Now()
+
+	newCreate, err := ls.listCollection.Update(ctx, list, id)
+	if err != nil {
+		return false, nil, err
+	}
+	return newCreate, list, nil
+}
+
 func (ls *ListService) ListLists(ctx context.Context) ([]models.List, error) {
 	lists := []models.List{}
 	if err := ls.listCollection.List(ctx, &lists); err != nil {
 		return nil, err
 	}
 	return lists, nil
+}
+
+func (ls *ListService) DeleteById(ctx context.Context, id string) (bool, error) {
+	return ls.listCollection.Delete(ctx, id)
 }
