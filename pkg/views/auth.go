@@ -13,8 +13,9 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	UserId string `json:"userId"`
-	Token  string `json:"token"`
+	UserId    string `json:"userId"`
+	Token     string `json:"token"`
+	TokenType string `json:"tokenType"`
 }
 
 func NewUserFromRegisterRequest(r *RegisterRequest) *models.User {

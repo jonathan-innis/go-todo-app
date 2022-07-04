@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/jonathan-innis/go-todo-app/pkg/constants"
 	"net/http"
 
 	"github.com/jonathan-innis/go-todo-app/pkg/auth"
@@ -46,10 +47,11 @@ func (ac *AuthController) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	loginResponse := &views.LoginResponse{
-		UserId: userId,
-		Token:  tokenStr,
+		UserId:    userId,
+		Token:     tokenStr,
+		TokenType: constants.BearerTokenType,
 	}
-	json.NewEncoder(w).Encode(loginResponse)
+	_ = json.NewEncoder(w).Encode(loginResponse)
 }
 
 func (ac *AuthController) Register(w http.ResponseWriter, r *http.Request) {
