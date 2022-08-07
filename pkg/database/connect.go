@@ -2,7 +2,6 @@ package database
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -14,7 +13,7 @@ const (
 )
 
 func ConnectDB(ctx context.Context, config *Config) *mongo.Database {
-	clientOptions := options.Client().ApplyURI(fmt.Sprintf(connectionStringTemplate, config.username, config.password, config.endpoint, config.name))
+	clientOptions := options.Client().ApplyURI(config.ConnectionString())
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
 		log.Fatal(err)
