@@ -48,9 +48,13 @@ func main() {
 	lc := controllers.NewListController(ls)
 	ac := controllers.NewAuthController(us)
 	uc := controllers.NewUserController(us)
+	pc := controllers.NewPublicController(is)
 
 	r.Use(middleware.HeaderMiddleware)
 	r.Use(middleware.LoggingMiddleware)
+
+	// Frontend/Public Router
+	r.HandleFunc("/", pc.Get)
 
 	apiRouter := r.PathPrefix("/api").Subrouter()
 
