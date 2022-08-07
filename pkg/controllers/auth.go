@@ -51,6 +51,18 @@ func (ac *AuthController) Login(w http.ResponseWriter, r *http.Request) {
 		Token:     tokenStr,
 		TokenType: constants.BearerTokenType,
 	}
+
+	// Set the cookie the response before sending back
+	// the response
+	cookie := &http.Cookie{
+		Name:     constants.TokenCookieName,
+		Value:    tokenStr,
+		Path:     constants.RootPath,
+		HttpOnly: true,
+		SameSite: http.SameSiteNoneMode,
+		Secure:   true,
+	}
+	http.SetCookie(w, cookie)
 	_ = json.NewEncoder(w).Encode(loginResponse)
 }
 
