@@ -19,6 +19,8 @@ spec:
         image: jonathaninnis/go-todo-app:latest
         ports:
         - containerPort: 80
+        args:
+          - --config-type=environment
         envFrom:
         - secretRef:
             name: config
