@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"log"
 	"net/http"
 
@@ -15,7 +16,22 @@ import (
 
 func main() {
 	r := mux.NewRouter()
-	db := database.ConnectDB(context.Background(), "todo-app")
+
+	// Define the flags to start the service
+	var configType string
+	flag.StringVar(&configType, "config-type", string(database.ConfigTypeDefault), "The type of config to use")
+	flag.Parse()
+
+	// Get the database config by type
+	var config *database.Config
+	switch configType {
+	case string(database.ConfigTypeEnvironment):
+		config = database.NewConfigFromEnvironment()
+	default:
+		config = database.DefaultConfig()
+	}
+
+	db := database.ConnectDB(context.Background(), config)
 
 	// Register the collections
 	itemCollection := database.NewMongoCollection(db.Collection("items"))
